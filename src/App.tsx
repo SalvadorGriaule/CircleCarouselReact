@@ -14,30 +14,37 @@ function App() {
   const urlArr = [
     ...Object.keys(img).map((elem, i) => {
       return {
-        src: elem.replace(".","/src"),
+        src: elem.replace(".", "/src"),
         width: sizeHolder[i].width,
         height: sizeHolder[i].height,
       };
     }),
   ];
   const [current, setCurrent] = useState(0);
-  const [dim, setDim] = useState(500);
-
-  const handleClick = useCallback((num:number) => {
-    console.log(num);
-    
-    setCurrent(num)
-  },[])
+  const dim = 500;
+  
+  const handleClick = useCallback((num: number) => {
+    setCurrent(num);
+  }, []);
 
   return (
     <>
       <main className="w-screen h-screen flex justify-center items-center flex-col">
-        <CarouselCircle urlArr={urlArr} currentImg={current} dim={dim} />
+        <CarouselCircle urlArr={urlArr} dim={dim} currentImg={current} />
         <div className="mt-8 space-x-1">
-          {urlArr.map((elem,i) => {return (
-            <button onClick={() => handleClick(i)} className="bg-linear-to-r from-slate-300 to-slate-400" key={i}>{i}</button>
-          )})}
+          {urlArr.map((elem, i) => {
+            return (
+              <button
+                onClick={() => handleClick(i)}
+                className="bg-linear-to-r from-slate-300 to-slate-400"
+                key={i}
+              >
+                {i}
+              </button>
+            );
+          })}
         </div>
+        <p>{current}</p>
       </main>
     </>
   );
