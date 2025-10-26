@@ -1,11 +1,13 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useSpring, animated, to } from "@react-spring/web";
+import { resize } from "./module/resize";
 
 interface ImageData {
   src: string;
   height: number;
   width: number;
 }
+
 export default function CarouselCircle({
   urlArr,
   dim,
@@ -17,16 +19,6 @@ export default function CarouselCircle({
   currentImg: number;
   key?: number;
 }) {
-  // Memoized width calculation
-  const calcWidth = (dimImg: ImageData) => {
-    const rapport = dimImg.width / dimImg.height;
-    return {
-      rapport,
-      newWidth: dim,
-      newHeight: rapport < 0 ? dim * rapport : dim / rapport,
-    };
-  };
-
   // State management
   const [sizeSvg, setSizeSvg] = useState({ width: 0, height: 0 });
   const [backImg, setBackImg] = useState(0);
@@ -41,13 +33,13 @@ export default function CarouselCircle({
   const svgRef = useRef<SVGSVGElement>(null);
 
   // Memoized width calculation
-  const { rapport, newWidth, newHeight } = useMemo(
-    () => calcWidth(urlArr[currentImg]),
+  const { h, w } = useMemo(
+    () => resize({ w: urlArr[currentImg].width, h: urlArr[currentImg].height }, dim),
     [currentImg, urlArr, dim]
   );
 
   // Last rapport state for smooth transitions
-  const [lastRapport, setLastRapport] = useState({ rapport, newWidth });
+  const [lastRapport, setLastRapport] = useState({ h, w });
 
   // Separate springs for white and black offsets
   const [whiteOffsetSpring, whiteOffsetApi] = useSpring(() => ({}));
@@ -96,7 +88,7 @@ export default function CarouselCircle({
         setIsAnimating(false);
         setTransitionDirection(null);
         setPreviouse(null);
-        setLastRapport({ rapport, newWidth });
+        setLastRapport({ h, w });
       });
     }
   }, [currentImg]);
@@ -111,80 +103,75 @@ export default function CarouselCircle({
   }, [svgRef.current]);
 
   return (
-    <>
-      <p className="mb-6">
-        {newWidth} {lastRapport.newWidth}
-      </p>
-      <div
-        className="relative justify-center items-center flex-none rounded-full outline-4 outline-white outline-offset-8 bg-white overflow-hidden"
-        style={{ width: `${dim}px`, height: `${dim}px` }}
+    <div
+      className="relative justify-center items-center flex-none rounded-full outline-4 outline-white outline-offset-8 bg-white overflow-hidden"
+      style={{ width: `${dim}px`, height: `${dim}px` }}
+    >
+      {/* Background Image Layer */}
+      <svg className="absolute z-10 left-0 top-0 w-full h-full">
+        <defs>
+          <mask id={`circle2-${key}`}>
+            <circle
+              r={sizeSvg.height}
+              cx={sizeSvg.width / 2}
+              cy={sizeSvg.height / 2}
+              fill="#ffffff"
+            />
+          </mask>
+        </defs>
+        <image
+          width={previouse === "front" ? w : lastRapport.w}
+          height={previouse === "front" ? h : lastRapport.h}
+          x={previouse === "front" ? -((w - dim) / 2) : -((lastRapport.w - dim) / 2)}
+          y={previouse === "front" ? -((h - dim) / 2) : -((lastRapport.h - dim) / 2)}
+          href={urlArr[backImg].src}
+          mask={`url(#circle2-${key})`}
+        />
+      </svg>
+
+      {/* Animated Foreground Layer */}
+      <svg
+        ref={svgRef}
+        className="absolute z-20 left-0 top-0 w-full h-full"
+        xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Background Image Layer */}
-        <svg className="absolute z-10 left-0 top-0 w-full h-full">
-          <defs>
-            <mask id={`circle2-${key}`}>
-              <circle
-                r={sizeSvg.height}
-                cx={sizeSvg.width / 2}
-                cy={sizeSvg.height / 2}
-                fill="#ffffff"
-              />
-            </mask>
-          </defs>
-          <image
-            width={newWidth}
-            height={newHeight}
-            x={previouse === "front" ? -dim / 1000 : -dim / 1000}
-            y={0}
-            href={urlArr[backImg].src}
-            mask={`url(#circle2-${key})`}
-          />
-        </svg>
+        <defs>
+          <animated.radialGradient
+            id={`grad-${key}`}
+            cx="50%"
+            r="50%"
+            fx="50%"
+            fy="50%"
+          >
+            <animated.stop
+              offset={to(whiteOffsetSpring.value, (value) => `${value}%`)}
+              stopColor="#ffffff"
+            />
+            <animated.stop
+              offset={to(blackOffsetSpring.value, (value) => `${value}%`)}
+              stopColor="#000000"
+            />
+          </animated.radialGradient>
 
-        {/* Animated Foreground Layer */}
-        <svg
-          ref={svgRef}
-          className="absolute z-20 left-0 top-0 w-full h-full"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <animated.radialGradient
-              id={`grad-${key}`}
-              cx="50%"
-              r="50%"
-              fx="50%"
-              fy="50%"
-            >
-              <animated.stop
-                offset={to(whiteOffsetSpring.value, (value) => `${value}%`)}
-                stopColor="#ffffff"
-              />
-              <animated.stop
-                offset={to(blackOffsetSpring.value, (value) => `${value}%`)}
-                stopColor="#000000"
-              />
-            </animated.radialGradient>
+          <mask id={`circle-${key}`}>
+            <circle
+              r={sizeSvg.height}
+              cx={sizeSvg.width / 2}
+              cy={sizeSvg.height / 2}
+              fill={`url(#grad-${key})`}
+            />
+          </mask>
+        </defs>
 
-            <mask id={`circle-${key}`}>
-              <circle
-                r={sizeSvg.height}
-                cx={sizeSvg.width / 2}
-                cy={sizeSvg.height / 2}
-                fill={`url(#grad-${key})`}
-              />
-            </mask>
-          </defs>
-
-          <animated.image
-            width={newWidth}
-            height={newHeight}
-            x={previouse === "front" ? -dim / 1000 : -dim / 1000}
-            y={0}
-            href={urlArr[frontImg].src}
-            mask={`url(#circle-${key})`}
-          />
-        </svg>
-      </div>
-    </>
+        <animated.image
+          width={previouse === "front" ? lastRapport.w : w}
+          height={previouse === "front" ? lastRapport.h : h}
+          x={previouse === "front" ? -((lastRapport.w - dim) / 2) : -((w - dim) / 2)}
+          y={previouse === "front" ? -((lastRapport.h - dim) / 2) : -((h - dim) / 2)}
+          href={urlArr[frontImg].src}
+          mask={`url(#circle-${key})`}
+        />
+      </svg>
+    </div>
   );
 }

@@ -1,8 +1,8 @@
 import CarouselCircle from "./lib/CarouselCircle";
 import { useState, useCallback } from "react";
 
-import Placeholder from "./assets/img/city.jpg?as=meta:height;width";
-import Placeholder2 from "./assets/img/bord-de-mer-cote-faire-signe-idyllique-1835718.jpg?as=meta:height;width";
+import Placeholder2 from "./assets/img/city.jpg?as=meta:height;width";
+import Placeholder from "./assets/img/bord-de-mer-cote-faire-signe-idyllique-1835718.jpg?as=meta:height;width";
 import Placeholder3 from "./assets/img/coverBlue_weekend.jpg?as=meta:height;width";
 import Placeholder4 from "./assets/img/cover_heligoland.jpg?as=meta:height;width";
 
