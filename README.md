@@ -1,73 +1,103 @@
-# React + TypeScript + Vite
+# 🎞️ React CarouselCircle  
+Composant React (TypeScript + React-Spring) qui transforme n’importe quelle liste d’images en **carousel radial** ultra-fluide – zéro dépendance runtime (hors `@react-spring/web`).
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![npm](https://img.shields.io/npm/v/@salvadorgriaule/react-carousel-circle?color=ff0066)](https://npmjs.com/package/@salvadorgriaule/react-carousel-circle)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![React](https://img.shields.io/badge/React-18+-61dafb)
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Ce qu’il fait
+- Transition **circulaire** type « iris » entre deux images (masque SVG + radial-gradient)  
+- **Timing asymétrique** (400 ms / 800 ms) pour un rendu naturel  
+- **Responsive** : s’adapte à n’importe quelle taille carrée (`dim`)  
+- **Full TypeScript** – prêt à l’emploi  
+- **Léger** : seul `@react-spring/web` requis
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 📦 Installation
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm i @salvadorgriaule/react-carousel-circle
+# ou
+pnpm add @salvadorgriaule/react-carousel-circle
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🚀 Début rapide
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```tsx
+import CarouselCircle from "@salvadorgriaule/react-carousel-circle";
+
+const images = [
+  { src: "/1.jpg", width: 1200, height: 800 },
+  { src: "/2.jpg", width: 800, height: 800 },
+  { src: "/3.jpg", width: 1600, height: 900 },
+];
+
+export default function App() {
+  const [index, setIndex] = useState(0);
+
+  return (
+    <>
+      <CarouselCircle urlArr={images} dim={300} currentImg={index} />
+      <button onClick={() => setIndex((i) => (i + 1) % images.length)}>Suivant</button>
+    </>
+  );
+}
 ```
+
+---
+
+## 📌 Props
+
+| Prop        | Type | Obligatoire | Description |
+|-------------|------|-------------|-------------|
+| `urlArr` | `{ src: string; width: number; height: number }[]` | ✅ | Images + dimensions originales |
+| `dim` | `number` | ✅ | Taille (px) du cercle (conteneur carré) |
+| `currentImg` | `number` | ✅ | Index de l’image à afficher |
+| `key` | `number \| string` | — | Clé optionnelle pour IDs uniques si plusieurs instances |
+
+---
+
+## 🎨 Personnalisation
+
+Le composant rend un cercle blanc avec `outline-white outline-offset-8`.  
+À personnaliser via CSS :
+
+```css
+.carousel-circle {
+  outline-color: theme(colors.sky.500);
+}
+```
+
+---
+
+## 🧪 Développement
+
+```bash
+git clone https://github.com/SalvadorGriaule/react-carousel-circle.git
+cd react-carousel-circle
+pnpm i
+pnpm dev        # http://localhost:5173
+```
+
+---
+
+## 📁 Structure
+
+```
+src/
+├── CarouselCircle.tsx   # composant principal
+├── module/resize.ts     # utilitaire de calcul de taille
+└── index.ts             # export { CarouselCircle }
+```
+
+---
+
+## 📝 Licence
+
+MIT – utilisez, forkez, animez !
+
